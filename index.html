@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TopSheetForge — Film Budget Top Sheet Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f9f6f1;--surface:#f0ede8;--surface2:#e8e5e0;--red:#1a1a1a;--red-dim:#444444;--gold:#6b6b6b;--text:#141414;--muted:#646464;--subtle:#d4d4d4;--border:#d4d4d4;--accent:#1a1a1a;--accent-hover:#444444;--radius:12px}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-weight:300;text-transform:uppercase;letter-spacing:-.02em;font-size:16px;line-height:1.6;overflow-x:hidden}
+body::before{display:none}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 40px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--subtle)}
+.logo{font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-weight:500;font-size:1.25rem;color:var(--text);text-decoration:none;letter-spacing:-.02em}
+.logo span{color:var(--red)}
+nav ul{list-style:none;display:flex;gap:32px}
+nav a{color:var(--muted);text-decoration:none;font-size:.875rem;font-weight:500;transition:color .2s}
+nav a:hover{color:var(--text)}
+.nav-cta{background:none;border:2px solid var(--text);color:var(--text)!important;padding:8px 20px;border-radius:999px;font-weight:400!important}
+.nav-cta:hover{background:var(--red-dim)!important}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:#f5f5f5;border:1px solid #e0e0e0;color:var(--muted);font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:28px}
+.hero-badge::before{content:'◆';font-size:.6rem}
+h1{font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-weight:700;font-size:clamp(2rem,4vw,3.2rem);line-height:1.05;letter-spacing:-.03em;max-width:900px;margin-bottom:24px}
+h1 em{font-style:normal;color:var(--red)}
+.hero-sub{font-size:clamp(1rem,2vw,1.2rem);color:var(--muted);max-width:580px;margin:0 auto 44px;line-height:1.7}
+.hero-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.btn-primary{background:none;border:2px solid var(--text);color:var(--text);padding:12px 28px;border-radius:999px;font-weight:400;font-size:1rem;text-decoration:none;border:none;cursor:pointer;transition:background .2s,transform .1s;display:inline-block}
+.btn-primary:hover{background:var(--text);color:var(--bg);transform:translateY(-1px)}
+.btn-secondary{background:transparent;color:var(--text);padding:14px 32px;border-radius:999px;font-weight:600;font-size:1rem;text-decoration:none;border:1px solid var(--subtle);cursor:pointer;transition:border-color .2s;display:inline-block}
+.btn-secondary:hover{border-color:var(--muted)}
+.hero-meta{margin-top:60px;display:flex;gap:48px;justify-content:center;flex-wrap:wrap}
+.hero-stat .number{font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-weight:300;font-size:2rem;color:var(--text)}
+.hero-stat .label{font-size:.8rem;color:var(--muted);font-family:'DM Sans',system-ui,-apple-system,sans-serif;text-transform:uppercase;letter-spacing:.06em}
+section{padding:100px 24px;position:relative}
+.container{max-width:1100px;margin:0 auto}
+.section-label{font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--red);margin-bottom:14px}
+h2{font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-weight:800;font-size:clamp(2rem,4vw,3rem);letter-spacing:-.03em;line-height:1.1;margin-bottom:16px}
+.section-sub{color:var(--muted);font-size:1.05rem;max-width:520px;line-height:1.7}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;margin-top:56px}
+.step{background:var(--surface);border:1px solid var(--subtle);border-radius:var(--radius);padding:32px;position:relative;overflow:hidden}
+.step::before{content:attr(data-n);position:absolute;top:-10px;right:16px;font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-weight:800;font-size:5rem;color:rgba(255,45,78,.03);line-height:1}
+.step-icon{font-size:1.8rem;margin-bottom:16px}
+.step h3{font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-weight:700;font-size:1.15rem;margin-bottom:8px}
+.step p{color:var(--muted);font-size:.9rem;line-height:1.6}
+#tool{background:var(--surface);border-top:1px solid var(--subtle);border-bottom:1px solid var(--subtle)}
+.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:48px}
+.form-section{background:var(--bg);border:1px solid var(--subtle);border-radius:var(--radius);padding:28px}
+.form-section h3{font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-weight:700;font-size:1rem;margin-bottom:20px;color:var(--gold)}
+.field-group{margin-bottom:18px}
+.field-label{display:block;font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.field-input{width:100%;background:var(--surface2);border:1px solid var(--subtle);color:var(--text);padding:10px 14px;border-radius:999px;font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-size:.9rem;outline:none;transition:border-color .2s}
+.field-input:focus{border-color:var(--red)}
+select.field-input{cursor:pointer}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.generate-btn{width:100%;padding:14px;background:var(--red);color:#fff;border:2px solid var(--text);border-radius:999px;background:none;color:var(--text);font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-weight:700;font-size:1rem;cursor:pointer;margin-top:8px;transition:background .2s}
+.generate-btn:hover{background:var(--red-dim)}
+.preview-pane{background:var(--bg);border:1px solid var(--subtle);border-radius:var(--radius);padding:28px;overflow-y:auto;max-height:780px;position:relative}
+.watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-weight:800;font-size:2.5rem;color:rgba(255,45,78,.08);letter-spacing:.2em;pointer-events:none;white-space:nowrap;z-index:1;text-transform:uppercase}
+#topsheet-output{font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-size:.72rem;line-height:1.8;color:var(--text);white-space:pre;position:relative;z-index:2}
+#topsheet-output .placeholder-msg{color:var(--muted);font-style:italic;font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-size:.9rem;text-align:center;padding:60px 20px;white-space:normal}
+.download-bar{display:none;margin-top:20px;gap:12px;flex-direction:column}
+.download-bar .pay-btn{width:100%;padding:14px;background:var(--red);color:#fff;border:2px solid var(--text);border-radius:999px;background:none;color:var(--text);font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-weight:700;font-size:1rem;cursor:pointer;transition:background .2s}
+.download-bar .pay-btn:hover{background:var(--red-dim)}
+.download-bar .print-btn{width:100%;padding:12px;background:transparent;color:var(--text);border:1px solid var(--subtle);border-radius:999px;font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-weight:600;font-size:.9rem;cursor:pointer;transition:border-color .2s}
+.download-bar .print-btn:hover{border-color:var(--muted)}
+.pricing-card{max-width:480px;margin:56px auto 0;background:var(--surface);border:1px solid var(--red);border-radius:var(--radius);padding:40px;text-align:center}
+.plan-price{font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-weight:800;font-size:3rem;letter-spacing:-.03em;margin:8px 0 4px}
+.plan-price span{font-size:1rem;font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-weight:400;color:var(--muted)}
+.plan-features{list-style:none;margin:24px 0 32px;text-align:left}
+.plan-features li{padding:8px 0;border-bottom:1px solid rgba(0,0,0,.08);font-size:.875rem;color:var(--muted);display:flex;align-items:center;gap:10px}
+.plan-features li::before{content:'✓';color:var(--red);font-weight:700;flex-shrink:0}
+.support-form-wrap{max-width:560px;margin:48px auto 0}
+.incentive-section{background:rgba(255,45,78,.03);border:1px solid rgba(255,45,78,.2);border-radius:var(--radius);padding:20px;margin-top:12px}
+.incentive-section h3{color:var(--gold)}
+.incentive-summary{display:none;margin-top:16px;background:var(--surface2);border-radius:999px;padding:14px 16px;font-size:.82rem}
+.inc-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(0,0,0,.08)}
+.inc-row:last-child{border-bottom:none;font-weight:700;padding-top:8px}
+.inc-row .inc-label{color:var(--muted);font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-size:.67rem;text-transform:uppercase;letter-spacing:.06em}
+.inc-row .inc-val{color:var(--text)}
+.inc-row .inc-val.green{color:#4ade80}
+.inc-row .inc-val.red{color:var(--red)}
+.inc-note{font-size:.72rem;color:var(--muted);margin-top:10px;line-height:1.5;font-family:'DM Sans',system-ui,-apple-system,sans-serif}
+.inc-badge{display:inline-block;font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-size:.65rem;padding:2px 8px;border-radius:4px;margin-left:6px;text-transform:uppercase;letter-spacing:.05em}
+.inc-badge.transferable{background:rgba(74,222,128,.12);color:#4ade80}
+.inc-badge.competitive{background:rgba(232,184,75,.12);color:var(--gold)}
+.inc-badge.refundable{background:rgba(99,179,237,.12);color:#63b3ed}
+footer{padding:48px 24px;border-top:1px solid var(--subtle);text-align:center}
+footer .logo{display:inline-block;margin-bottom:12px;font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-weight:800;font-size:1.2rem}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#f8f8f8}
+::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
+@media(max-width:768px){nav ul{display:none}.tool-grid{grid-template-columns:1fr}nav{padding:16px 20px}}
+@media print{
+  nav,section:not(#tool),.form-section,.download-bar,.watermark,footer{display:none!important}
+  #tool{padding:0!important;border:none!important;background:white!important}
+  .tool-grid{display:block!important}
+  .preview-pane{border:none!important;padding:0!important;max-height:none!important;background:white!important}
+  #topsheet-output{color:black!important;font-size:.75rem!important}
+  body{background:white!important;color:black!important}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a href="#" class="logo">TopSheet<span>Forge</span></a>
+  <ul>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#tool">Generate</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#support">Support</a></li>
+    <li><a href="#tool" class="nav-cta">Generate Top Sheet</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge">Industry-standard film budget top sheets</div>
+  <h1>Your budget top sheet.<br><em>In 60 seconds.</em></h1>
+  <p class="hero-sub">Enter your budget, project type, and shooting days. TopSheetForge generates a professional above-the-line / below-the-line budget top sheet with industry-standard ratios — ready to print, share, or attach to your pitch deck. No Movie Magic required.</p>
+  <div class="hero-actions">
+    <a href="#tool" class="btn-primary">Generate Top Sheet →</a>
+    <a href="#how" class="btn-secondary">See how it works</a>
+  </div>
+  <div class="hero-meta">
+    <div class="hero-stat"><div class="number">24+</div><div class="label">line items</div></div>
+    <div class="hero-stat"><div class="number">$1</div><div class="label">top sheet</div></div>
+    <div class="hero-stat"><div class="number">$5</div><div class="label">full budget</div></div>
+    <div class="hero-stat"><div class="number">60s</div><div class="label">to generate</div></div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="container">
+    <div class="section-label">Process</div>
+    <h2>From budget number to<br>professional top sheet</h2>
+    <p class="section-sub">Three steps between your total budget and a document your investors, co-producers, or production company can work from immediately.</p>
+    <div class="steps">
+      <div class="step" data-n="1">
+        <div class="step-icon">📋</div>
+        <h3>Enter your details</h3>
+        <p>Total budget, project type, genre, shooting days, and union status. Takes under a minute.</p>
+      </div>
+      <div class="step" data-n="2">
+        <div class="step-icon">📊</div>
+        <h3>Review your top sheet</h3>
+        <p>Fully itemized ATL/BTL breakdown with industry-standard ratios adjusted for your genre and union status. Updates live as you type.</p>
+      </div>
+      <div class="step" data-n="3">
+        <div class="step-icon">💾</div>
+        <h3>Pay & download</h3>
+        <p>Top Sheet for $1 or Full Budget for $5. One-time payment. Print directly or save as PDF. Attach to your pitch deck, investor package, or co-production agreement.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tool">
+  <div class="container">
+    <div class="section-label">Generate</div>
+    <h2>Build your top sheet</h2>
+    <p class="section-sub">Fill in your project details. Your top sheet updates in real time on the right.</p>
+    <div class="tool-grid">
+      <div>
+        <div class="form-section">
+          <h3>Project Details</h3>
+          <div class="field-group">
+            <label class="field-label">Project Title</label>
+            <input class="field-input" id="f-title" type="text" placeholder="e.g. Metal & Dust" oninput="updatePreview()">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Total Budget (USD)</label>
+            <input class="field-input" id="f-budget" type="text" placeholder="e.g. 500000" oninput="updatePreview();updateIncentive()">
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">Project Type</label>
+              <select class="field-input" id="f-type" onchange="updatePreview()">
+                <option value="feature">Feature Film</option>
+                <option value="short">Short Film</option>
+                <option value="tv60">TV Episode (1hr)</option>
+                <option value="tv30">TV Episode (30min)</option>
+                <option value="limited">Limited Series (per ep)</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Genre</label>
+              <select class="field-input" id="f-genre" onchange="updatePreview()">
+                <option value="drama">Drama</option>
+                <option value="action">Action / Thriller</option>
+                <option value="comedy">Comedy</option>
+                <option value="horror">Horror</option>
+                <option value="scifi">Sci-Fi / Fantasy</option>
+                <option value="doc">Documentary</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">Shooting Days</label>
+              <input class="field-input" id="f-days" type="number" placeholder="30" min="1" max="200" value="30" oninput="updatePreview()">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Union Status</label>
+              <select class="field-input" id="f-union" onchange="updatePreview()">
+                <option value="nonunion">Non-Union</option>
+                <option value="sag">SAG-AFTRA</option>
+                <option value="fullunion">Full Union</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-section" style="margin-top:16px">
+          <h3>Document Info</h3>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">Production Company</label>
+              <input class="field-input" id="f-company" type="text" placeholder="Optional" oninput="updatePreview()">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Prepared By</label>
+              <input class="field-input" id="f-prepby" type="text" placeholder="Your name" oninput="updatePreview()">
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Date</label>
+            <input class="field-input" id="f-date" type="date" oninput="updatePreview()">
+          </div>
+          <button class="generate-btn" onclick="generateSheet()">Generate Top Sheet ▶</button>
+        </div>
+        <div class="form-section incentive-section" style="margin-top:16px">
+          <h3>🎬 State Film Incentive</h3>
+          <div class="field-group" style="margin-bottom:0">
+            <label class="field-label">Filming State</label>
+            <select class="field-input" id="f-state" onchange="updateIncentive();updatePreview()">
+              <option value="none">— No incentive / International —</option>
+              <optgroup label="Top Incentive States">
+                <option value="GA">Georgia — 30% transferable credit</option>
+                <option value="NY">New York — 25% refundable credit</option>
+                <option value="NM">New Mexico — 25% refundable credit</option>
+                <option value="LA">Louisiana — 25% transferable credit</option>
+                <option value="IL">Illinois — 30% transferable credit</option>
+                <option value="NJ">New Jersey — 30% transferable credit</option>
+                <option value="MA">Massachusetts — 25% transferable credit</option>
+                <option value="CT">Connecticut — 30% transferable credit</option>
+                <option value="RI">Rhode Island — 30% transferable credit</option>
+                <option value="WA">Washington — 30% cash rebate</option>
+                <option value="KY">Kentucky — 35% refundable credit</option>
+                <option value="OK">Oklahoma — 35% rebate</option>
+              </optgroup>
+              <optgroup label="All States (A–M)">
+                <option value="AL">Alabama — 25% rebate</option>
+                <option value="AR">Arkansas — 15% rebate</option>
+                <option value="CA">California — 20–25% credit (competitive)</option>
+                <option value="CO">Colorado — 20% rebate (competitive)</option>
+                <option value="FL">Florida — 20% credit (competitive)</option>
+                <option value="HI">Hawaii — 22% refundable credit</option>
+                <option value="IN">Indiana — 15% grant (competitive)</option>
+                <option value="MD">Maryland — 25% credit (competitive)</option>
+                <option value="ME">Maine — 12% payroll rebate</option>
+                <option value="MI">Michigan — No active program</option>
+                <option value="MN">Minnesota — 25% rebate (competitive)</option>
+                <option value="MO">Missouri — 20% transferable credit</option>
+                <option value="MS">Mississippi — 25% rebate</option>
+                <option value="MT">Montana — 20% rebate</option>
+              </optgroup>
+              <optgroup label="All States (N–W)">
+                <option value="NC">North Carolina — 25% rebate</option>
+                <option value="NE">Nebraska — 10% rebate</option>
+                <option value="NV">Nevada — 15% credit</option>
+                <option value="OH">Ohio — 30% rebate (competitive)</option>
+                <option value="OR">Oregon — 20% cash rebate</option>
+                <option value="PA">Pennsylvania — 25% credit (competitive)</option>
+                <option value="SC">South Carolina — 20% rebate</option>
+                <option value="TN">Tennessee — 17% grant</option>
+                <option value="TX">Texas — up to 22.5% grant (competitive)</option>
+                <option value="UT">Utah — 20% cash rebate</option>
+                <option value="VA">Virginia — 15% credit</option>
+                <option value="WI">Wisconsin — 25% rebate</option>
+                <option value="WV">West Virginia — 27% credit</option>
+                <option value="WY">Wyoming — 12% rebate</option>
+              </optgroup>
+              <optgroup label="No Active Program">
+                <option value="AZ">Arizona — No active program</option>
+                <option value="AK">Alaska — No active program</option>
+                <option value="DE">Delaware — No active program</option>
+                <option value="ID">Idaho — No active program</option>
+                <option value="IA">Iowa — No active program</option>
+                <option value="KS">Kansas — No active program</option>
+                <option value="ND">North Dakota — No active program</option>
+                <option value="NH">New Hampshire — No active program</option>
+                <option value="SD">South Dakota — No active program</option>
+                <option value="VT">Vermont — No active program</option>
+              </optgroup>
+              <optgroup label="── Europe ──────────────────">
+                <option value="IE">Ireland — 32% Section 481 tax credit</option>
+                <option value="AT">Austria — 35% FISA+ rebate</option>
+                <option value="MT">Malta — 40% cash rebate</option>
+                <option value="GR">Greece — up to 40% cash rebate</option>
+                <option value="RO">Romania — 35% cash rebate</option>
+                <option value="SK_eu">Slovakia — 33% cash rebate</option>
+                <option value="LU">Luxembourg — 30–40% tax credit</option>
+                <option value="HU">Hungary — 30% rebate</option>
+                <option value="PL">Poland — 30% cash rebate</option>
+                <option value="EE">Estonia — 30% cash rebate</option>
+                <option value="LT">Lithuania — 30% rebate</option>
+                <option value="BE">Belgium — 25% Tax Shelter</option>
+                <option value="FR">France — 30% TRIP credit (foreign)</option>
+                <option value="ES">Spain — 30% / Canary Islands 50%</option>
+                <option value="IT">Italy — 40% tax credit (foreign)</option>
+                <option value="CZ">Czech Republic — 20% rebate</option>
+                <option value="HR">Croatia — 25% cash rebate</option>
+                <option value="RS">Serbia — 25% cash rebate</option>
+                <option value="BG">Bulgaria — 25% cash rebate</option>
+                <option value="PT">Portugal — 25–30% rebate</option>
+                <option value="NL">Netherlands — 30% SPTF rebate</option>
+                <option value="IS">Iceland — 25% cash rebate</option>
+                <option value="NO">Norway — 25% cash rebate</option>
+                <option value="SE">Sweden — 25% rebate</option>
+                <option value="DK">Denmark — 22% rebate</option>
+                <option value="LV">Latvia — 20% rebate</option>
+                <option value="DE_eu">Germany — 20–25% DFFF rebate</option>
+                <option value="UK">United Kingdom — 25% Film Tax Relief</option>
+              </optgroup>
+              <optgroup label="── UK &amp; Commonwealth ─────────">
+                <option value="NZ">New Zealand — 20% + 5% uplift NZSPG</option>
+                <option value="AU">Australia — 16.5% federal + state (up to ~35%)</option>
+                <option value="CA_bc">Canada / BC — 35% production credit</option>
+                <option value="CA_qc">Canada / Quebec — up to 28% refundable</option>
+                <option value="CA_on">Canada / Ontario — 21.5% OFTTC</option>
+                <option value="CA_fed">Canada / Federal — 16% PSTC</option>
+              </optgroup>
+              <optgroup label="── Asia ─────────────────────">
+                <option value="SG">Singapore — 40% cash rebate</option>
+                <option value="HK">Hong Kong — up to 50% rebate</option>
+                <option value="TW">Taiwan — 30% rebate on qualifying spend</option>
+                <option value="MY">Malaysia — 30% cash rebate</option>
+                <option value="KR">South Korea — 25–40% rebate</option>
+                <option value="TH">Thailand — 20% cash rebate</option>
+                <option value="IN_asia">India — 15–25% foreign production incentive</option>
+                <option value="PH">Philippines — 20% rebate</option>
+              </optgroup>
+              <optgroup label="── Latin America ─────────────">
+                <option value="CO_latam">Colombia — 40% cash rebate (highest in region)</option>
+                <option value="AR_latam">Argentina — 25% INCAA rebate</option>
+                <option value="CL">Chile — 20% film tax rebate</option>
+                <option value="DO">Dominican Republic — 25% rebate</option>
+                <option value="PA">Panama — 15% FILMAR rebate</option>
+                <option value="MX">Mexico — up to 25% (state programs)</option>
+                <option value="BR">Brazil — 10–20% rebate (varies by state)</option>
+              </optgroup>
+              <optgroup label="── Middle East &amp; Africa ──────">
+                <option value="MA_africa">Morocco — 30% cash rebate</option>
+                <option value="AE">UAE / Dubai — up to 30% rebate</option>
+                <option value="ZA">South Africa — 20–25% rebate</option>
+                <option value="JO">Jordan — 10% rebate</option>
+                <option value="TR">Turkey — 40% cash rebate</option>
+                <option value="SA_me">Saudi Arabia — 40% SCTH rebate</option>
+                <option value="IL">Israel — 20% rebate</option>
+                <option value="EG">Egypt — 20% rebate</option>
+                <option value="TN">Tunisia — 25% rebate</option>
+                <option value="KE">Kenya — 30% rebate</option>
+                <option value="ZW">Zimbabwe — 50% rebate</option>
+                <option value="NA">Namibia — 50% rebate</option>
+              </optgroup>
+              <optgroup label="── More Europe ──────────────">
+                <option value="CY">Cyprus — 35% cash rebate</option>
+                <option value="FI">Finland — 25% cash rebate</option>
+                <option value="SI">Slovenia — 25% rebate</option>
+                <option value="ME">Montenegro — 25% rebate</option>
+                <option value="MK">North Macedonia — 20% rebate</option>
+                <option value="AL">Albania — 20% rebate</option>
+                <option value="GE_eu">Georgia (country) — 20% rebate</option>
+                <option value="UA">Ukraine — 25% rebate</option>
+              </optgroup>
+              <optgroup label="── Caribbean &amp; More Americas ──">
+                <option value="PR">Puerto Rico — 40% tax credit (US territory)</option>
+                <option value="TT">Trinidad &amp; Tobago — 35% rebate</option>
+                <option value="BS">Bahamas — 25% rebate</option>
+                <option value="JM">Jamaica — 20% rebate (JAMPRO)</option>
+                <option value="EC">Ecuador — 20% rebate</option>
+                <option value="PE">Peru — 10% tax credit</option>
+                <option value="UY">Uruguay — production incentives</option>
+              </optgroup>
+              <optgroup label="── Oceania &amp; Pacific ─────────">
+                <option value="FJ">Fiji — 47% rebate</option>
+              </optgroup>
+              <optgroup label="── More Asia ────────────────">
+                <option value="LK">Sri Lanka — 50% rebate</option>
+                <option value="KZ">Kazakhstan — 30% rebate</option>
+                <option value="JP">Japan — prefectural rebates (varies)</option>
+                <option value="VN">Vietnam — 20% rebate</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="incentive-summary" id="incentive-summary">
+            <div class="inc-row"><span class="inc-label">Incentive Type</span><span class="inc-val" id="inc-type">—</span></div>
+            <div class="inc-row"><span class="inc-label">Rate</span><span class="inc-val" id="inc-rate">—</span></div>
+            <div class="inc-row"><span class="inc-label">Min. Spend</span><span class="inc-val" id="inc-min">—</span></div>
+            <div class="inc-row"><span class="inc-label">Est. Incentive Value</span><span class="inc-val green" id="inc-value">—</span></div>
+            <div class="inc-row"><span class="inc-label">Net Effective Budget</span><span class="inc-val red" id="inc-net">—</span></div>
+            <div class="inc-note" id="inc-note"></div>
+          </div>
+        </div>
+        <div class="download-bar" id="download-bar">
+          <button class="pay-btn" id="pay-btn-topsheet" onclick="handlePayment('topsheet')" style="background:var(--red);margin-bottom:8px">Pay $1 — Top Sheet Only</button>
+          <button class="pay-btn" id="pay-btn-budget" onclick="handlePayment('budget')" style="background:#1a1a1a">Pay $5 — Full Line-Item Budget</button>
+          <button class="print-btn" id="print-btn" style="display:none" onclick="window.print()">🖨 Print / Save as PDF</button>
+          <div style="font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-size:.65rem;color:var(--muted);text-align:center;margin-top:6px">Secure checkout via Stripe</div>
+        </div>
+      </div>
+      <div class="preview-pane" id="preview-pane">
+        <div class="watermark" id="watermark">PREVIEW</div>
+        <div id="topsheet-output"><div class="placeholder-msg">Fill in your project details on the left and click Generate Top Sheet →</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="container">
+    <div class="section-label">Pricing</div>
+    <h2>Two tiers. No subscription.</h2>
+    <p class="section-sub">Pay once, download instantly. No account required.</p>
+    <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;max-width:700px;margin:0 auto">
+      <div class="pricing-card" style="flex:1;min-width:260px">
+        <div class="section-label" style="text-align:center">Top Sheet</div>
+        <div class="plan-price">$1<span> / document</span></div>
+        <p style="color:var(--muted);font-size:.875rem;margin-bottom:4px">Clean one-page summary for pitching.</p>
+        <ul class="plan-features">
+          <li>One-page print-ready top sheet</li>
+          <li>ATL + BTL + Post + Other summary</li>
+          <li>Genre & union status adjusted</li>
+          <li>Instant download, no account needed</li>
+          <li>1 free preview before you pay</li>
+        </ul>
+        <a href="#tool" class="btn-primary" style="display:block;text-align:center;text-decoration:none">Generate top sheet →</a>
+      </div>
+      <div class="pricing-card" style="flex:1;min-width:260px;border-color:rgba(108,63,197,.5)">
+        <div class="section-label" style="text-align:center;color:var(--text)">Full Budget</div>
+        <div class="plan-price" style="color:var(--text)">$5<span> / document</span></div>
+        <p style="color:var(--muted);font-size:.875rem;margin-bottom:4px">Complete line-item breakdown for production.</p>
+        <ul class="plan-features">
+          <li>Everything in Top Sheet, plus:</li>
+          <li>24+ line-item full budget breakdown</li>
+          <li>Industry-standard ratios by genre</li>
+          <li>Global incentive value calculated</li>
+          <li>Net effective budget after rebate</li>
+          <li>Attach to investor packages</li>
+        </ul>
+        <a href="#tool" class="btn-primary" style="display:block;text-align:center;text-decoration:none;background:#1a1a1a">Generate full budget →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="support">
+  <div class="container">
+    <div class="section-label">Support</div>
+    <h2>Need help?</h2>
+    <p class="section-sub">Questions about a top sheet or the tool? Send us a message.</p>
+    <div class="support-form-wrap">
+      <form id="support-form" action="https://formspree.io/f/xjgpndky" method="POST" onsubmit="handleSupport(event)">
+        <div style="display:grid;gap:16px">
+          <div>
+            <label class="field-label">Your name</label>
+            <input type="text" name="name" required placeholder="Full name" class="field-input">
+          </div>
+          <div>
+            <label class="field-label">Your email</label>
+            <input type="email" name="email" required placeholder="your@email.com" class="field-input">
+          </div>
+          <div>
+            <label class="field-label">Message</label>
+            <textarea name="message" required placeholder="What do you need help with?" rows="4" class="field-input" style="resize:vertical"></textarea>
+          </div>
+          <input type="hidden" name="_subject" value="TopSheetForge Support">
+          <button type="submit" class="generate-btn">Send message →</button>
+          <div id="support-msg" style="display:none;text-align:center;font-size:.875rem;padding:12px;border-radius:999px"></div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="logo">TopSheet<span style="color:var(--red)">Forge</span></div>
+  <p style="margin-top:8px;color:var(--muted);font-size:.875rem">Film budget top sheets for independent filmmakers.</p>
+  <p style="margin-top:12px;font-size:.75rem;color:var(--subtle);max-width:600px;margin-left:auto;margin-right:auto">TopSheetForge generates estimates based on industry averages. Actual production costs vary significantly. Consult a qualified line producer for precise budgeting on significant productions.</p>
+  <p style="margin-top:16px;font-size:.75rem;color:var(--subtle)">© 2025 TopSheetForge. All rights reserved.</p>
+</footer>
+
+<script>
+const STRIPE_TOPSHEET = 'https://buy.stripe.com/28E14oemr0MV0jDaNHasg03'; // $1 — Top Sheet Only
+const STRIPE_BUDGET   = 'https://buy.stripe.com/7sY3cw5PVanv9Ud2hbasg01'; // $5 — Full Budget
+
+// Set today's date
+document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+
+// Genre ratios: [story, producers, direction, cast, atl_travel_pct_of_atl,
+//   prod_staff, extra, art_dir, set_const, set_dress, prop, wardrobe,
+//   lighting, camera, sound, transport, locations, pic_vehicles, vfx_prod,
+//   editing, music, post_sound, color, vfx_post, titles, deliverables,
+//   publicity, ga, insurance, legal]
+const RATIOS = {
+  // 2025 industry-standard ratios — updated for streaming era, post-COVID insurance, modern VFX costs
+  drama:  [.028,.048,.058,.145,.025, .058,.018,.038,.028,.028,.014,.028, .048,.038,.020,.038,.048,.010,.020, .048,.035,.032,.022,.015,.010,.012, .028,.028,.032,.022],
+  action: [.018,.038,.048,.115,.025, .058,.018,.038,.048,.038,.014,.028, .052,.042,.020,.055,.055,.028,.075, .038,.035,.042,.022,.050,.010,.012, .028,.028,.032,.022],
+  comedy: [.028,.048,.058,.145,.025, .052,.018,.032,.028,.028,.014,.028, .042,.038,.020,.038,.048,.010,.015, .048,.035,.032,.022,.012,.010,.012, .028,.028,.032,.022],
+  horror: [.018,.038,.048,.095,.025, .052,.018,.038,.038,.028,.014,.038, .048,.038,.020,.028,.048,.010,.060, .038,.035,.042,.022,.040,.010,.012, .028,.028,.032,.022],
+  scifi:  [.018,.048,.055,.115,.025, .058,.018,.038,.055,.048,.014,.038, .052,.042,.020,.038,.038,.010,.095, .038,.035,.032,.022,.060,.010,.012, .028,.028,.032,.022],
+  doc:    [.010,.058,.038,.028,.020, .058,.010,.010,.010,.010,.010,.010, .038,.032,.020,.028,.028,.005,.008, .078,.025,.022,.022,.008,.010,.015, .028,.028,.032,.022]
+};
+
+// 2024-2025 SAG-AFTRA / IATSE rate adjustments (post-2023 contract)
+const UNION_CAST_MULT = {nonunion:1.0, sag:1.20, fullunion:1.35};
+const UNION_CREW_MULT = {nonunion:1.0, sag:1.0, fullunion:1.18};
+
+function fmt(n){return '$'+Math.round(n).toLocaleString('en-US')}
+function pad(s,n){return s.length>=n?s:s+' '.repeat(n-s.length)}
+function padL(s,n){return s.length>=n?s:' '.repeat(n-s.length)+s}
+
+function calcBudget(){
+  const raw = document.getElementById('f-budget').value.replace(/[^0-9.]/g,'');
+  const total = parseFloat(raw)||0;
+  const genre = document.getElementById('f-genre').value||'drama';
+  const days = Math.max(1, parseInt(document.getElementById('f-days').value)||30);
+  const union = document.getElementById('f-union').value||'nonunion';
+  const r = RATIOS[genre];
+  const cm = UNION_CAST_MULT[union];
+  const crm = UNION_CREW_MULT[union];
+
+  // Raw allocations
+  let items = [
+    r[0],r[1],r[2],r[3]*cm,  // ATL
+    r[5]*crm*(days/30),r[6],r[7],r[8],r[9],r[10],r[11]*crm,
+    r[12]*crm*(days/30),r[13]*crm*(days/30),r[14]*crm,r[15],r[16],r[17],r[18],  // BTL prod
+    r[19],r[20],r[21],r[22],r[23],r[24],r[25],  // Post
+    r[26],r[27],r[28],r[29]  // Other (no contingency yet)
+  ];
+
+  // Convert ratios to raw amounts
+  let raw_amts = items.map(i => i * total);
+
+  // ATL travel = 2.5% of ATL subtotal
+  const atl_sub_raw = raw_amts.slice(0,4).reduce((a,b)=>a+b,0);
+  const atl_travel = atl_sub_raw * 0.025;
+
+  // Contingency = 10% of all before contingency
+  const pre_cont = raw_amts.reduce((a,b)=>a+b,0) + atl_travel;
+  const contingency = pre_cont * 0.10;
+
+  // Grand total before normalization
+  const uncorrected = pre_cont + contingency;
+
+  // Normalize scale so grand total == user's total
+  const scale = total / uncorrected;
+  const a = raw_amts.map(x => x * scale);
+  const atl_travel_adj = atl_travel * scale;
+  const contingency_adj = contingency * scale;
+
+  return {
+    story: a[0], producers: a[1], direction: a[2], cast: a[3],
+    atl_travel: atl_travel_adj,
+    prod_staff: a[4], extra: a[5], art_dir: a[6], set_const: a[7],
+    set_dress: a[8], prop: a[9], wardrobe: a[10],
+    lighting: a[11], camera: a[12], prod_sound: a[13],
+    transport: a[14], locations: a[15], pic_vehicles: a[16], vfx_prod: a[17],
+    editing: a[18], music: a[19], post_sound: a[20], color: a[21],
+    vfx_post: a[22], titles: a[23], deliverables: a[24],
+    publicity: a[25], ga: a[26], insurance: a[27], legal: a[28],
+    contingency: contingency_adj,
+    total: total
+  };
+}
+
+function renderSheet(b, title, company, prepby, date, type, genre, days, union){
+  const W = 56;
+  const line = '─'.repeat(W);
+  const dbl = '═'.repeat(W);
+  const atl = b.story+b.producers+b.direction+b.cast+b.atl_travel;
+  const btlp = b.prod_staff+b.extra+b.art_dir+b.set_const+b.set_dress+b.prop+b.wardrobe+b.lighting+b.camera+b.prod_sound+b.transport+b.locations+b.pic_vehicles+b.vfx_prod;
+  const post = b.editing+b.music+b.post_sound+b.color+b.vfx_post+b.titles+b.deliverables;
+  const other = b.publicity+b.ga+b.insurance+b.legal+b.contingency;
+  const typeLabel = {feature:'Feature Film',short:'Short Film',tv60:'TV Episode (1hr)',tv30:'TV Episode (30min)',limited:'Limited Series (per ep)'}[type]||type;
+  const genreLabel = {drama:'Drama',action:'Action / Thriller',comedy:'Comedy',horror:'Horror',scifi:'Sci-Fi / Fantasy',doc:'Documentary'}[genre]||genre;
+  const unionLabel = {nonunion:'Non-Union',sag:'SAG-AFTRA',fullunion:'Full Union'}[union]||union;
+  const row = (acct,cat,amt) => `${pad(acct,6)}  ${pad(cat,34)}  ${padL(fmt(amt),12)}\n`;
+
+  return `${pad(title||'UNTITLED PROJECT',W)}\n` +
+`${'BUDGET TOP SHEET'.padStart(Math.floor((W+18)/2))}\n` +
+`\n` +
+`Production Company: ${pad(company||'—',30)}  Date: ${date||'—'}\n` +
+`Prepared By:        ${pad(prepby||'—',30)}  \n` +
+`Project Type:       ${pad(typeLabel,30)}  Shooting Days: ${days}\n` +
+`Genre:              ${pad(genreLabel,30)}  Union Status: ${unionLabel}\n` +
+`\n` +
+`${dbl}\n` +
+`ABOVE THE LINE\n` +
+`${line}\n` +
+`${'ACCT'.padEnd(6)}  ${'CATEGORY'.padEnd(34)}  ${'AMOUNT'.padStart(12)}\n` +
+`${line}\n` +
+row('1100','Story, Rights & Continuity',b.story)+
+row('1200','Producers Unit',b.producers)+
+row('1300','Direction',b.direction)+
+row('1400','Cast',b.cast)+
+row('1500','ATL Travel & Living',b.atl_travel)+
+`${line}\n` +
+`${''.padEnd(6)}  ${'TOTAL ABOVE THE LINE'.padEnd(34)}  ${padL(fmt(atl),12)}\n` +
+`\n` +
+`${dbl}\n` +
+`BELOW THE LINE — PRODUCTION\n` +
+`${line}\n` +
+row('2000','Production Staff',b.prod_staff)+
+row('2100','Extra Talent',b.extra)+
+row('2200','Art Direction',b.art_dir)+
+row('2300','Set Construction',b.set_const)+
+row('2400','Set Dressing & Props',b.set_dress)+
+row('2500','Property',b.prop)+
+row('2600','Wardrobe / MUA / Hair',b.wardrobe)+
+row('2700','Lighting & Grip',b.lighting)+
+row('2800','Camera',b.camera)+
+row('2900','Production Sound',b.prod_sound)+
+row('3000','Transportation',b.transport)+
+row('3100','Locations',b.locations)+
+row('3200','Picture Vehicles',b.pic_vehicles)+
+row('3300','VFX / Special Effects Prod.',b.vfx_prod)+
+`${line}\n` +
+`${''.padEnd(6)}  ${'TOTAL BTL PRODUCTION'.padEnd(34)}  ${padL(fmt(btlp),12)}\n` +
+`\n` +
+`${dbl}\n` +
+`BELOW THE LINE — POST PRODUCTION\n` +
+`${line}\n` +
+row('4000','Picture Editing',b.editing)+
+row('4100','Music',b.music)+
+row('4200','Post Production Sound',b.post_sound)+
+row('4300','Color Grading & Finishing',b.color)+
+row('4400','VFX Post',b.vfx_post)+
+row('4500','Titles & Graphics',b.titles)+
+row('4600','Deliverables / Archiving',b.deliverables)+
+`${line}\n` +
+`${''.padEnd(6)}  ${'TOTAL POST PRODUCTION'.padEnd(34)}  ${padL(fmt(post),12)}\n` +
+`\n` +
+`${dbl}\n` +
+`OTHER\n` +
+`${line}\n` +
+row('5000','Publicity & Marketing',b.publicity)+
+row('6000','General & Administrative',b.ga)+
+row('7000','Insurance',b.insurance)+
+row('8000','Legal & Accounting',b.legal)+
+row('9000','Contingency (10%)',b.contingency)+
+`${line}\n` +
+`${''.padEnd(6)}  ${'TOTAL OTHER'.padEnd(34)}  ${padL(fmt(other),12)}\n` +
+`\n` +
+`${dbl}\n` +
+`${''.padEnd(6)}  ${'GRAND TOTAL'.padEnd(34)}  ${padL(fmt(b.total),12)}\n` +
+`${dbl}\n` +
+`\nThis document was generated by TopSheetForge. Figures are estimates based on industry averages.\nActual costs vary. Consult a qualified line producer for precise budgeting.\n` +
+getIncentiveText();
+}
+
+let previewGenerated = false;
+let paidSession = false;
+
+function checkPaid(){
+  const p = new URLSearchParams(window.location.search);
+  if(p.get('paid')==='true'){
+    localStorage.setItem('tsf_paid_'+Date.now(),'1');
+    paidSession = true;
+    history.replaceState({},'',' ');
+  }
+}
+
+function updatePreview(){
+  // Only live-update if already paid
+  if(paidSession && previewGenerated) generateSheet();
+}
+
+function generateSheet(){
+  const raw = document.getElementById('f-budget').value.replace(/[^0-9.]/g,'');
+  if(!raw || parseFloat(raw)<=0){
+    document.getElementById('topsheet-output').innerHTML='<div class="placeholder-msg">Enter a budget amount to generate your top sheet.</div>';
+    return;
+  }
+
+  // Payment gate — must pay before seeing results
+  if(!paidSession){
+    document.getElementById('topsheet-output').innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:48px 24px;text-align:center;gap:20px">
+        <div style="font-size:2.5rem">📊</div>
+        <div style="font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-weight:800;font-size:1.3rem">Your top sheet is ready</div>
+        <div style="color:var(--muted);font-size:.9rem;max-width:340px">Pay once to generate and download your professional budget top sheet. No subscription.</div>
+        <button onclick="handlePayment('topsheet')" style="background:var(--red);color:#fff;padding:14px 36px;border-radius:999px;font-weight:700;font-size:1rem;border:none;cursor:pointer;margin-top:8px">Pay $1 — Generate Top Sheet →</button>
+        <button onclick="handlePayment('budget')" style="border:2px solid var(--text);background:none;color:var(--text);padding:12px 30px;border-radius:999px;font-weight:700;font-size:.9rem;border:none;cursor:pointer">Pay $5 — Full Line-Item Budget →</button>
+        <div style="color:var(--muted);font-size:.72rem;margin-top:4px">Secure checkout via Stripe · One-time payment</div>
+      </div>`;
+    document.getElementById('watermark').style.display='none';
+    const bar = document.getElementById('download-bar');
+    bar.style.display = 'none';
+    previewGenerated = true;
+    return;
+  }
+
+  const b = calcBudget();
+  const title = document.getElementById('f-title').value||'UNTITLED PROJECT';
+  const company = document.getElementById('f-company').value;
+  const prepby = document.getElementById('f-prepby').value;
+  const date = document.getElementById('f-date').value;
+  const type = document.getElementById('f-type').value;
+  const genre = document.getElementById('f-genre').value;
+  const days = document.getElementById('f-days').value||'30';
+  const union = document.getElementById('f-union').value;
+
+  const text = renderSheet(b,title,company,prepby,date,type,genre,days,union);
+  document.getElementById('topsheet-output').textContent = text;
+  previewGenerated = true;
+
+  const bar = document.getElementById('download-bar');
+  bar.style.display = 'flex';
+  document.getElementById('watermark').style.display='none';
+  document.getElementById('pay-btn-topsheet').style.display='none';
+  document.getElementById('pay-btn-budget').style.display='none';
+  document.getElementById('print-btn').style.display='block';
+}
+
+function handlePayment(tier){
+  const raw = document.getElementById('f-budget').value.replace(/[^0-9.]/g,'');
+  if(!raw || parseFloat(raw)<=0){alert('Enter a budget amount first.');return;}
+  const returnUrl = encodeURIComponent(window.location.href.split('?')[0]+'?paid=true');
+  if(tier === 'topsheet'){
+    if(STRIPE_TOPSHEET === 'PENDING_1_DOLLAR_LINK'){
+      alert('$1 top sheet payment coming soon. Use the $5 full budget for now.');return;
+    }
+    window.location.href = STRIPE_TOPSHEET+'?success_url='+returnUrl;
+  } else {
+    if(STRIPE_BUDGET==='https://buy.stripe.com/7sY3cw5PVanv9Ud2hbasg01'){
+      window.location.href = STRIPE_BUDGET+'?success_url='+returnUrl;
+    } else {
+      alert('Payment not yet configured. Please try again shortly.');
+    }
+  }
+}
+
+async function handleSupport(e){
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type=submit]');
+  const msg = document.getElementById('support-msg');
+  btn.textContent='Sending...';btn.disabled=true;
+  try{
+    const res = await fetch(e.target.action,{method:'POST',body:new FormData(e.target),headers:{'Accept':'application/json'}});
+    if(res.ok){
+      e.target.reset();
+      msg.style.display='block';msg.style.background='rgba(74,222,128,.1)';msg.style.color='#4ade80';
+      msg.textContent='✓ Message sent!';btn.textContent='Sent!';
+    } else throw new Error();
+  } catch{
+    msg.style.display='block';msg.style.background='rgba(255,45,78,.1)';msg.style.color='var(--red)';
+    msg.textContent='Something went wrong. Try again.';btn.textContent='Send message →';btn.disabled=false;
+  }
+}
+
+checkPaid();
+
+// ── State Film Incentives Database ──────────────────────────────────────────
+const STATE_INCENTIVES = {
+  none: { name:'None', rate:0, type:'none', notes:'No incentive applied.' },
+  AL:   { name:'Alabama',        rate:.25, type:'Rebate',            minSpend:500000,  transferable:false, notes:'25% rebate on qualifying AL production spend.' },
+  AR:   { name:'Arkansas',       rate:.15, type:'Rebate',            minSpend:200000,  transferable:false, notes:'15% rebate on AR qualifying spend.' },
+  CA:   { name:'California',     rate:.20, type:'Tax Credit',        minSpend:1000000, competitive:true,   notes:'20–25% non-transferable credit. Highly competitive — apply early.' },
+  CO:   { name:'Colorado',       rate:.20, type:'Rebate',            minSpend:100000,  competitive:true,   cap:750000, notes:'20% rebate on CO spend. Competitive; annual cap $750K.' },
+  CT:   { name:'Connecticut',    rate:.30, type:'Tax Credit',        minSpend:100000,  transferable:true,  notes:'30% transferable credit on CT qualifying spend.' },
+  FL:   { name:'Florida',        rate:.20, type:'Tax Credit',        minSpend:625000,  competitive:true,   notes:'20% credit. Competitive allocation program.' },
+  GA:   { name:'Georgia',        rate:.30, type:'Tax Credit',        minSpend:500000,  transferable:true,  notes:'20% + 10% bonus if Georgia promotion logo used. Transferable. No cap.' },
+  HI:   { name:'Hawaii',         rate:.22, type:'Refundable Credit', minSpend:0,       transferable:false, notes:'20% (Oahu) / 25% (neighbor islands). Avg ~22%. Fully refundable.' },
+  IL:   { name:'Illinois',       rate:.30, type:'Tax Credit',        minSpend:50000,   transferable:true,  notes:'30% transferable credit on IL qualifying production spend.' },
+  IN:   { name:'Indiana',        rate:.15, type:'Grant',             minSpend:50000,   competitive:true,   notes:'15% competitive grant on qualifying IN spend.' },
+  KY:   { name:'Kentucky',       rate:.35, type:'Refundable Credit', minSpend:0,       transferable:false, notes:'30–35% refundable credit on KY qualifying spend. One of the highest in the US.' },
+  LA:   { name:'Louisiana',      rate:.25, type:'Tax Credit',        minSpend:300000,  transferable:true,  notes:'25% on resident payroll; 15% on other qualifying spend. Transferable.' },
+  MD:   { name:'Maryland',       rate:.25, type:'Tax Credit',        minSpend:500000,  competitive:true,   notes:'25% tax credit on MD qualifying spend. Competitive.' },
+  MA:   { name:'Massachusetts',  rate:.25, type:'Tax Credit',        minSpend:50000,   transferable:true,  notes:'25% transferable credit on MA qualifying spend.' },
+  ME:   { name:'Maine',          rate:.12, type:'Rebate',            minSpend:75000,   transferable:false, notes:'12% rebate on ME resident payroll.' },
+  MN:   { name:'Minnesota',      rate:.25, type:'Rebate',            minSpend:100000,  competitive:true,   notes:'25% rebate on MN spend. Competitive; capped annual program.' },
+  MO:   { name:'Missouri',       rate:.20, type:'Tax Credit',        minSpend:50000,   transferable:true,  notes:'20% transferable credit on MO qualifying spend.' },
+  MS:   { name:'Mississippi',    rate:.25, type:'Rebate',            minSpend:50000,   transferable:false, notes:'25% rebate on MS qualifying spend.' },
+  MT:   { name:'Montana',        rate:.20, type:'Rebate',            minSpend:50000,   transferable:false, notes:'20% rebate on MT qualifying spend.' },
+  NE:   { name:'Nebraska',       rate:.10, type:'Rebate',            minSpend:0,       transferable:false, notes:'10–15% rebate on qualifying NE spend.' },
+  NV:   { name:'Nevada',         rate:.15, type:'Tax Credit',        minSpend:500000,  transferable:false, notes:'15% non-refundable credit on NV spend.' },
+  NJ:   { name:'New Jersey',     rate:.30, type:'Tax Credit',        minSpend:1000000, transferable:true,  notes:'30% transferable credit on NJ qualifying spend.' },
+  NM:   { name:'New Mexico',     rate:.25, type:'Refundable Credit', minSpend:0,       transferable:false, notes:'25% fully refundable credit on qualifying NM spend. No cap.' },
+  NY:   { name:'New York',       rate:.25, type:'Refundable Credit', minSpend:1000000, transferable:false, notes:'25% refundable credit. NYC + NYS programs available. No annual cap.' },
+  NC:   { name:'North Carolina', rate:.25, type:'Rebate',            minSpend:250000,  transferable:false, notes:'25% rebate on NC qualifying spend.' },
+  OH:   { name:'Ohio',           rate:.30, type:'Rebate',            minSpend:300000,  competitive:true,   notes:'30% rebate on OH spend. Competitive.' },
+  OK:   { name:'Oklahoma',       rate:.35, type:'Rebate',            minSpend:50000,   transferable:false, notes:'35% rebate on qualifying OK spend.' },
+  OR:   { name:'Oregon',         rate:.20, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'20% cash rebate on qualifying OR spend.' },
+  PA:   { name:'Pennsylvania',   rate:.25, type:'Tax Credit',        minSpend:0,       competitive:true,   notes:'25% credit. Large competitive program — apply early.' },
+  RI:   { name:'Rhode Island',   rate:.30, type:'Tax Credit',        minSpend:100000,  transferable:true,  notes:'30% transferable credit on RI qualifying spend.' },
+  SC:   { name:'South Carolina', rate:.20, type:'Rebate',            minSpend:1000000, transferable:false, notes:'20% rebate on SC qualifying spend.' },
+  TN:   { name:'Tennessee',      rate:.17, type:'Grant',             minSpend:200000,  transferable:false, notes:'17% grant on qualifying TN spend.' },
+  TX:   { name:'Texas',          rate:.20, type:'Grant',             minSpend:250000,  competitive:true,   notes:'5–22.5% competitive grant. Amount depends on project type and budget.' },
+  UT:   { name:'Utah',           rate:.20, type:'Cash Rebate',       minSpend:500000,  transferable:false, notes:'20% cash rebate on qualifying UT spend.' },
+  VA:   { name:'Virginia',       rate:.15, type:'Tax Credit',        minSpend:250000,  transferable:false, notes:'15% credit (refundable option available).' },
+  WA:   { name:'Washington',     rate:.30, type:'Cash Rebate',       minSpend:500000,  competitive:true,   notes:'30% cash rebate via Motion Picture Competitiveness Program.' },
+  WI:   { name:'Wisconsin',      rate:.25, type:'Rebate',            minSpend:0,       transferable:false, notes:'25% rebate on qualifying WI spend.' },
+  WV:   { name:'West Virginia',  rate:.27, type:'Tax Credit',        minSpend:25000,   transferable:false, notes:'27% credit on other expenses; 35% on WV resident labor.' },
+  WY:   { name:'Wyoming',        rate:.12, type:'Cash Rebate',       minSpend:200000,  transferable:false, notes:'12% cash rebate on qualifying spend.' },
+  // No active programs
+  AK: { name:'Alaska',       rate:0, type:'None', notes:'No active incentive program.' },
+  AZ: { name:'Arizona',      rate:0, type:'None', notes:'Program expired 2011.' },
+  DE: { name:'Delaware',     rate:0, type:'None', notes:'No active incentive program.' },
+  ID: { name:'Idaho',        rate:0, type:'None', notes:'No active incentive program.' },
+  IA: { name:'Iowa',         rate:0, type:'None', notes:'Program ended 2009.' },
+  KS: { name:'Kansas',       rate:0, type:'None', notes:'No active incentive program.' },
+  ND: { name:'North Dakota', rate:0, type:'None', notes:'No active incentive program.' },
+  NH: { name:'New Hampshire',rate:0, type:'None', notes:'No active incentive program.' },
+  SD: { name:'South Dakota', rate:0, type:'None', notes:'No active incentive program.' },
+  VT: { name:'Vermont',      rate:0, type:'None', notes:'No active incentive program.' },
+
+  // ── EUROPE ──────────────────────────────────────────────────────────────
+  IE:    { name:'Ireland',          rate:.32, type:'Tax Credit',        minSpend:125000,  transferable:false, notes:'Section 481: 32% credit on qualifying Irish spend. Strong crew base, English-speaking.' },
+  AT:    { name:'Austria',          rate:.35, type:'Cash Rebate',       minSpend:600000,  transferable:false, notes:'FISA+: 35% rebate on Austrian qualifying spend. No annual cap.' },
+  MT:    { name:'Malta',            rate:.40, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'40% cash rebate on Maltese qualifying spend. Mediterranean locations, English-speaking.' },
+  GR:    { name:'Greece',           rate:.40, type:'Cash Rebate',       minSpend:100000,  transferable:false, notes:'Up to 40% cash rebate. Includes 25% on all spend + bonuses for region and high BTL spend.' },
+  RO:    { name:'Romania',          rate:.35, type:'Cash Rebate',       minSpend:200000,  transferable:false, notes:'35% cash rebate on Romanian qualifying spend. Growing production hub, competitive costs.' },
+  SK_eu: { name:'Slovakia',         rate:.33, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'33% cash rebate on qualifying Slovak spend.' },
+  LU:    { name:'Luxembourg',       rate:.35, type:'Tax Credit',        minSpend:0,       transferable:false, notes:'30–40% tax credit on qualifying LU spend. Strong co-production treaties.' },
+  HU:    { name:'Hungary',          rate:.30, type:'Tax Rebate',        minSpend:0,       transferable:false, notes:'30% rebate on qualifying Hungarian spend. Major studio infrastructure. Budapest = "Hollywood of Europe".' },
+  PL:    { name:'Poland',           rate:.30, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'30% cash rebate on Polish qualifying spend. Growing industry, strong crews.' },
+  EE:    { name:'Estonia',          rate:.30, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'30% cash rebate on Estonian spend.' },
+  LT:    { name:'Lithuania',        rate:.30, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'30% rebate on qualifying Lithuanian spend.' },
+  BE:    { name:'Belgium',          rate:.25, type:'Tax Shelter',       minSpend:0,       transferable:true,  notes:'25% tax shelter + 5% cash rebate on Belgian qualifying spend. Transferable mechanism.' },
+  FR:    { name:'France',           rate:.30, type:'Tax Credit',        minSpend:0,       transferable:false, notes:'TRIP: 30% refundable credit for foreign productions on French qualifying spend. Strict cultural test.' },
+  ES:    { name:'Spain',            rate:.30, type:'Tax Credit',        minSpend:0,       transferable:false, notes:'30% on first €1M qualifying spend, 25% above. Canary Islands: 50% first €1M, 45% above. Major incentive destination.' },
+  IT:    { name:'Italy',            rate:.40, type:'Tax Credit',        minSpend:0,       transferable:false, notes:'40% tax credit for foreign co-productions on Italian qualifying spend.' },
+  CZ:    { name:'Czech Republic',   rate:.20, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'20% rebate on Czech qualifying spend. Prague = major production hub.' },
+  HR:    { name:'Croatia',          rate:.25, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'25% cash rebate on Croatian qualifying spend. Stunning locations (Game of Thrones filming).' },
+  RS:    { name:'Serbia',           rate:.25, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'25% cash rebate on Serbian qualifying spend.' },
+  BG:    { name:'Bulgaria',         rate:.25, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'25% cash rebate on qualifying Bulgarian spend. Nu Boyana Film Studios on-site.' },
+  PT:    { name:'Portugal',         rate:.25, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'25–30% rebate on qualifying Portuguese spend. Lisbon/Porto growing hubs.' },
+  NL:    { name:'Netherlands',      rate:.30, type:'Cash Rebate',       minSpend:250000,  competitive:true,   notes:'SPTF: 30% rebate on Dutch qualifying spend. Competitive; annual fund applies.' },
+  IS:    { name:'Iceland',          rate:.25, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'25% cash rebate on Icelandic spend. Volcanic landscapes, midnight sun, aurora.' },
+  NO:    { name:'Norway',           rate:.25, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'25% cash rebate on Norwegian qualifying spend. Fjords, Arctic, midnight sun.' },
+  SE:    { name:'Sweden',           rate:.25, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'25% rebate on Swedish qualifying spend.' },
+  DK:    { name:'Denmark',          rate:.22, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'22% rebate on Danish qualifying spend.' },
+  LV:    { name:'Latvia',           rate:.20, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'20% rebate on Latvian qualifying spend.' },
+  DE_eu: { name:'Germany',          rate:.25, type:'Cash Rebate',       minSpend:1000000, transferable:false, notes:'DFFF: 20–25% rebate on German qualifying spend. Significant fund but minimum spend is high.' },
+  UK:    { name:'United Kingdom',   rate:.25, type:'Tax Relief',        minSpend:0,       transferable:false, notes:'25% Film Tax Relief / HETV Tax Relief on qualifying UK spend. Cultural test required. Strong crew base.' },
+
+  // ── UK & COMMONWEALTH ───────────────────────────────────────────────────
+  NZ:    { name:'New Zealand',      rate:.25, type:'Cash Grant',        minSpend:0,       transferable:false, notes:'NZSPG: 20% + 5% uplift on NZ qualifying spend. Lord of the Rings infrastructure. Stunning locations.' },
+  AU:    { name:'Australia',        rate:.165,type:'Tax Offset',        minSpend:0,       transferable:false, notes:'16.5% federal QAPE offset + state incentives (QLD, VIC, NSW up to ~35% combined). Diverse locations.' },
+  CA_bc: { name:'Canada / BC',      rate:.35, type:'Tax Credit',        minSpend:0,       transferable:false, notes:'35% BC Production Services Tax Credit. Vancouver = "Hollywood North". Strong crew base.' },
+  CA_qc: { name:'Canada / Quebec',  rate:.28, type:'Refundable Credit', minSpend:0,       transferable:false, notes:'Up to 28% refundable QPPTC credit on qualifying Quebec spend. Strong French-language market.' },
+  CA_on: { name:'Canada / Ontario', rate:.215,type:'Refundable Credit', minSpend:0,       transferable:false, notes:'21.5% OFTTC refundable credit on Ontario qualifying spend. Toronto is major hub.' },
+  CA_fed:{ name:'Canada / Federal', rate:.16, type:'Refundable Credit', minSpend:0,       transferable:false, notes:'16% federal PSTC refundable credit. Stackable with provincial credits.' },
+
+  // ── ASIA ────────────────────────────────────────────────────────────────
+  SG:      { name:'Singapore',      rate:.40, type:'Cash Rebate',       minSpend:0,       competitive:true,   notes:'40% cash rebate on qualifying Singapore spend. English-speaking, world-class infrastructure.' },
+  HK:      { name:'Hong Kong',      rate:.50, type:'Cash Rebate',       minSpend:0,       competitive:true,   notes:'Up to 50% on qualifying HK spend (HKQE program). Strong action and martial arts crews.' },
+  TW:      { name:'Taiwan',         rate:.30, type:'Cash Rebate',       minSpend:0,       competitive:true,   notes:'30% rebate on qualifying Taiwan spend. Growing production infrastructure. Visa-friendly.' },
+  MY:      { name:'Malaysia',       rate:.30, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'30% cash rebate on qualifying Malaysian spend. Diverse landscapes, competitive costs.' },
+  KR:      { name:'South Korea',    rate:.25, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'25% base rebate; up to 40% for location shoots and high spend. Hallyu wave production hub.' },
+  TH:      { name:'Thailand',       rate:.20, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'20% cash rebate on Thai qualifying spend. Iconic locations, experienced crews.' },
+  IN_asia: { name:'India',          rate:.20, type:'Cash Incentive',    minSpend:0,       competitive:true,   notes:'15–25% foreign production incentive (varies by state). Bollywood infrastructure. Vast locations.' },
+  PH:      { name:'Philippines',    rate:.20, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'20% rebate on qualifying Philippines spend. Tropical locations, English-speaking.' },
+
+  // ── LATIN AMERICA ────────────────────────────────────────────────────────
+  CO_latam:{ name:'Colombia',       rate:.40, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'40% cash rebate (CINA). One of the highest incentives in the world. Diverse landscapes: jungle, Andes, Caribbean coast, Cartagena.' },
+  AR_latam:{ name:'Argentina',      rate:.25, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'25% INCAA rebate on qualifying Argentine spend. Buenos Aires strong production base.' },
+  CL:      { name:'Chile',          rate:.20, type:'Tax Rebate',        minSpend:0,       transferable:false, notes:'20% film tax rebate on qualifying Chilean spend. Atacama, Patagonia, Andes locations.' },
+  DO:      { name:'Dominican Rep.', rate:.25, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'25% rebate on qualifying Dominican spend. Caribbean locations, major resort infrastructure.' },
+  PA:      { name:'Panama',         rate:.15, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'15% FILMAR rebate on qualifying Panama spend.' },
+  MX:      { name:'Mexico',         rate:.25, type:'Mixed',             minSpend:0,       competitive:true,   notes:'7.5–10% federal EFICINE + state programs. Sonora up to 25%, Baja California up to 15%. Los Cabos growing hub.' },
+  BR:      { name:'Brazil',         rate:.20, type:'Cash Rebate',       minSpend:0,       competitive:true,   notes:'10–20% rebate (varies by state/program). Sao Paulo and Rio major production centers.' },
+
+  // ── MIDDLE EAST & AFRICA ────────────────────────────────────────────────
+  MA_africa:{ name:'Morocco',       rate:.30, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'30% cash rebate on Moroccan qualifying spend. Diverse desert, kasbahs, and Atlas mountain locations. Long Hollywood history.' },
+  AE:      { name:'UAE / Dubai',    rate:.30, type:'Cash Rebate',       minSpend:0,       competitive:true,   notes:'Up to 30% rebate via Dubai Film & TV Commission. World-class infrastructure, futuristic cityscapes, desert.' },
+  ZA:      { name:'South Africa',   rate:.25, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'20–25% rebate on qualifying SA spend. Cape Town and Johannesburg growing hubs. Diverse biomes.' },
+  JO:       { name:'Jordan',              rate:.10, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'10% rebate on qualifying Jordan spend. Wadi Rum, Petra — iconic desert locations. Star Wars, The Martian, Dune filmed here.' },
+
+  // ── TURKEY & MIDDLE EAST ADDITIONS ──────────────────────────────────────
+  TR:       { name:'Turkey',              rate:.40, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'40% cash rebate on qualifying Turkish spend. Istanbul, Cappadocia, Pamukkale — extraordinary locations. Strong crew base. Rapidly growing hub.' },
+  SA_me:    { name:'Saudi Arabia',        rate:.40, type:'Cash Rebate',       minSpend:0,       competitive:true,   notes:'40% rebate via SCTH (Saudi Commission for Tourism and Heritage). New program, major investment push. AlUla ancient ruins among most dramatic locations on Earth.' },
+  IL:       { name:'Israel',             rate:.20, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'20% rebate on qualifying Israeli spend. Tel Aviv, Jerusalem, Negev desert locations.' },
+  EG:       { name:'Egypt',              rate:.20, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'20% rebate on qualifying Egyptian spend. Ancient monuments, desert, Nile locations. Cairo major production center.' },
+  TN:       { name:'Tunisia',            rate:.25, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'25% rebate on Tunisian qualifying spend. Star Wars filmed here extensively. North Africa desert and Mediterranean locations.' },
+  KE:       { name:'Kenya',              rate:.30, type:'Cash Rebate',       minSpend:0,       competitive:true,   notes:'30% rebate via Kenya Film Commission. Savanna, Maasai Mara, Nairobi. Growing hub for African productions.' },
+  ZW:       { name:'Zimbabwe',           rate:.50, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'50% rebate on qualifying Zimbabwe spend. Victoria Falls, wildlife reserves, diverse terrain. One of highest rates globally.' },
+  NA:       { name:'Namibia',            rate:.50, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'50% rebate on qualifying Namibian spend. Sossusvlei dunes, Etosha, Fish River Canyon. Mad Max: Fury Road shot here. Stunning desert landscapes.' },
+
+  // ── MORE EUROPE ──────────────────────────────────────────────────────────
+  CY:       { name:'Cyprus',             rate:.35, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'35% cash rebate on qualifying Cypriot spend. Mediterranean island, year-round sun, ancient ruins. English-speaking.' },
+  FI:       { name:'Finland',            rate:.25, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'25% cash rebate on Finnish qualifying spend. Arctic landscapes, forests, lakes, aurora borealis.' },
+  SI:       { name:'Slovenia',           rate:.25, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'25% rebate on qualifying Slovenian spend. Lake Bled, Triglav, Karst region. Compact but visually stunning.' },
+  ME:       { name:'Montenegro',         rate:.25, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'25% rebate on qualifying Montenegro spend. Adriatic coast, mountains, Bay of Kotor.' },
+  MK:       { name:'North Macedonia',    rate:.20, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'20% rebate on qualifying North Macedonia spend.' },
+  AL:       { name:'Albania',            rate:.20, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'20% rebate on qualifying Albanian spend. Albanian Riviera, mountains, Berat UNESCO city.' },
+  GE_eu:    { name:'Georgia (country)',  rate:.20, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'20% rebate on qualifying Georgian spend. Tbilisi, Caucasus mountains, ancient churches, Black Sea coast.' },
+  UA:       { name:'Ukraine',            rate:.25, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'25% rebate on qualifying Ukrainian spend. Program established pre-2022 — verify current availability with Ukrainian State Film Agency before planning.' },
+
+  // ── CARIBBEAN & MORE AMERICAS ────────────────────────────────────────────
+  PR:       { name:'Puerto Rico',        rate:.40, type:'Tax Credit',        minSpend:0,       transferable:false, notes:'40% transferable tax credit on qualifying Puerto Rico spend. US territory — no international work permit needed for US crew. Caribbean locations, English/Spanish.' },
+  TT:       { name:'Trinidad & Tobago',  rate:.35, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'35% rebate via Trinidad & Tobago Film Company. Twin-island Caribbean locations.' },
+  BS:       { name:'Bahamas',            rate:.25, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'25% rebate on qualifying Bahamas spend. Crystal water, islands, Nassau. James Bond and Pirates of the Caribbean history.' },
+  JM:       { name:'Jamaica',            rate:.20, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'20% rebate via JAMPRO on qualifying Jamaica spend. Caribbean locations, reggae culture, English-speaking.' },
+  EC:       { name:'Ecuador',            rate:.20, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'20% rebate on qualifying Ecuador spend. Amazon, Andes, Galapagos Islands, Pacific coast.' },
+  PE:       { name:'Peru',               rate:.10, type:'Tax Credit',        minSpend:0,       transferable:false, notes:'10% tax credit on qualifying Peru spend. Machu Picchu, Amazon basin, Lima, Nazca Lines. Strong tourism infrastructure.' },
+  UY:       { name:'Uruguay',            rate:.15, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'~15% production incentives on qualifying Uruguay spend. Montevideo growing production hub, Punta del Este.' },
+
+  // ── OCEANIA ──────────────────────────────────────────────────────────────
+  FJ:       { name:'Fiji',               rate:.47, type:'Cash Rebate',       minSpend:0,       competitive:true,   notes:'47% rebate on qualifying Fiji spend. One of the highest in the world. Tropical islands, turquoise water, coral reefs. Cast Away, The Blue Lagoon, Contact filmed here.' },
+
+  // ── MORE ASIA ────────────────────────────────────────────────────────────
+  LK:       { name:'Sri Lanka',          rate:.50, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'50% rebate on qualifying Sri Lanka spend. Tea plantations, ancient ruins, beaches, wildlife. Bridge on the River Kwai filmed here. One of highest rates globally.' },
+  KZ:       { name:'Kazakhstan',         rate:.30, type:'Cash Rebate',       minSpend:0,       competitive:true,   notes:'30% rebate on qualifying Kazakhstan spend. Vast steppe, Almaty mountains, Silk Road cities. Growing Central Asian hub.' },
+  JP:       { name:'Japan',              rate:.15, type:'Regional Rebate',   minSpend:0,       competitive:true,   notes:'No national program. Prefectural rebates 10–20% (Okinawa, Hokkaido, others). Tokyo Film Commission facilitates location access.' },
+  VN:       { name:'Vietnam',            rate:.20, type:'Cash Rebate',       minSpend:0,       transferable:false, notes:'20% rebate on qualifying Vietnamese spend. Ha Long Bay, Hoi An, Ho Chi Minh City. Kong: Skull Island filmed here. Low production costs.' },
+
+function updateIncentive(){
+  const state = document.getElementById('f-state').value;
+  const rawBudget = parseFloat((document.getElementById('f-budget').value||'0').replace(/[^0-9.]/g,''))||0;
+  const inc = STATE_INCENTIVES[state];
+  const summary = document.getElementById('incentive-summary');
+  if(!inc || inc.rate===0){ summary.style.display='none'; return; }
+  summary.style.display='block';
+  // Estimate qualifying spend as ~80% of budget (conservative — excludes non-qualifying ATL)
+  const qualifyingSpend = rawBudget * 0.80;
+  const incentiveValue = Math.max(0, qualifyingSpend >= (inc.minSpend||0) ? qualifyingSpend * inc.rate : 0);
+  const netBudget = rawBudget - incentiveValue;
+  document.getElementById('inc-type').innerHTML = inc.type +
+    (inc.transferable ? ' <span class="inc-badge transferable">Transferable</span>' : '') +
+    (inc.competitive ? ' <span class="inc-badge competitive">Competitive</span>' : '') +
+    (inc.type==='Refundable Credit' ? ' <span class="inc-badge refundable">Refundable</span>' : '');
+  document.getElementById('inc-rate').textContent = (inc.rate*100).toFixed(0)+'% of qualifying spend';
+  document.getElementById('inc-min').textContent = inc.minSpend ? '$'+inc.minSpend.toLocaleString()+' minimum' : 'No minimum';
+  document.getElementById('inc-value').textContent = incentiveValue > 0 ? '+$'+Math.round(incentiveValue).toLocaleString() : '— (min. spend not met)';
+  document.getElementById('inc-net').textContent = incentiveValue > 0 ? '$'+Math.round(netBudget).toLocaleString()+' effective' : '—';
+  document.getElementById('inc-note').textContent = inc.notes + ' Incentive estimated on ~80% qualifying spend. Consult a qualified entertainment accountant for precise calculations.';
+}
+
+function getIncentiveText(){
+  const state = document.getElementById('f-state').value;
+  const rawBudget = parseFloat((document.getElementById('f-budget').value||'0').replace(/[^0-9.]/g,''))||0;
+  const inc = STATE_INCENTIVES[state];
+  if(!inc || inc.rate===0) return '';
+  const qualifyingSpend = rawBudget * 0.80;
+  const incentiveValue = qualifyingSpend >= (inc.minSpend||0) ? qualifyingSpend * inc.rate : 0;
+  const netBudget = rawBudget - incentiveValue;
+  const W = 56;
+  const dbl = '═'.repeat(W);
+  const line = '─'.repeat(W);
+  const row = (cat,amt) => `  ${(cat).padEnd(38)}  ${('$'+Math.round(amt).toLocaleString()).padStart(12)}\n`;
+  if(incentiveValue <= 0) return `\n${dbl}\nSTATE FILM INCENTIVE — ${inc.name.toUpperCase()}\n${line}\n  No incentive applied (minimum spend not met or program inactive).\n${line}\n`;
+  return `\n${dbl}\nSTATE FILM INCENTIVE — ${inc.name.toUpperCase()}\n${line}\n` +
+  `  Program Type:   ${inc.type}${ inc.transferable?' (Transferable)':'' }${ inc.competitive?' (Competitive)':'' }\n` +
+  `  Incentive Rate: ${(inc.rate*100).toFixed(0)}%\n` +
+  `  Min. Spend:     ${inc.minSpend?'$'+inc.minSpend.toLocaleString():'None'}\n` +
+  `${line}\n` +
+  row('Estimated Qualifying Spend (80%)', qualifyingSpend) +
+  row('Incentive Rate', 0).replace('$0',((inc.rate*100).toFixed(0)+'%').padStart(12)) +
+  row('ESTIMATED INCENTIVE VALUE', incentiveValue) +
+  `${line}\n` +
+  `  GROSS BUDGET           ${'$'+Math.round(rawBudget).toLocaleString()}\n` +
+  `  LESS INCENTIVE         (${'$'+Math.round(incentiveValue).toLocaleString()})\n` +
+  `  NET EFFECTIVE BUDGET   ${'$'+Math.round(netBudget).toLocaleString()}\n` +
+  `${line}\n` +
+  `  NOTE: ${inc.notes}\n` +
+  `  Figures are estimates (~80% qualifying). Consult an entertainment\n` +
+  `  accountant or state film office for exact calculations.\n${line}\n`;
+}
+</script>
+</body>
+</html>
