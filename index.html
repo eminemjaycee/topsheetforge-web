@@ -101,6 +101,14 @@ footer .logo{display:inline-block;margin-bottom:12px;font-family:'DM Sans',syste
   #topsheet-output{color:black!important;font-size:.75rem!important}
   body{background:white!important;color:black!important}
 }
+
+.wm-overlay{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:10;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(249,246,241,0.15)}
+.wm-overlay-inner{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:0;overflow:hidden}
+.wm-tile{font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:700;color:rgba(20,20,20,0.18);text-transform:uppercase;letter-spacing:.08em;transform:rotate(-35deg);white-space:nowrap;padding:18px 24px;user-select:none}
+.wm-paywall{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(249,246,241,1) 60%,rgba(249,246,241,0.95) 75%,transparent 100%);padding:40px 24px 32px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.wm-paywall h3{font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:600;color:#141414;text-transform:uppercase;letter-spacing:.04em;margin:0}
+.wm-paywall p{font-size:.82rem;color:#646464;margin:0;max-width:300px}
+.wm-pay-btn{background:#141414;color:#f9f6f1;border:none;padding:12px 32px;border-radius:999px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:.9rem;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;margin-top:4px}
 </style>
 </head>
 <body>
@@ -412,7 +420,7 @@ footer .logo{display:inline-block;margin-bottom:12px;font-family:'DM Sans',syste
       </div>
       <div class="preview-pane" id="preview-pane">
         <div class="watermark" id="watermark">PREVIEW</div>
-        <div id="topsheet-output"><div class="placeholder-msg">Fill in your project details on the left and click Generate Top Sheet →</div></div>
+        <div style="position:relative"><div id="watermark-overlay" class="wm-overlay"><div class="wm-overlay-inner" id="wm-tiles"></div><div class="wm-paywall"><h3>Unlock Your Top Sheet</h3><p>Pay once to download and print — no subscription.</p><button class="wm-pay-btn" onclick="handlePayment('topsheet')">Pay $1 — Unlock →</button></div></div><div id="topsheet-output"><div class="placeholder-msg">Fill in your project details on the left and click Generate Top Sheet →</div></div>
       </div>
     </div>
   </div>
@@ -663,6 +671,19 @@ getIncentiveText();
 let previewGenerated = false;
 let paidSession = false;
 
+
+function fillWatermarkTiles(){
+  const el = document.getElementById('wm-tiles');
+  if(!el) return;
+  el.innerHTML = '';
+  const text = 'TOPSHEETFORGE.COM — PAY TO UNLOCK — ';
+  for(let i=0;i<80;i++){
+    const t = document.createElement('span');
+    t.className = 'wm-tile';
+    t.textContent = text;
+    el.appendChild(t);
+  }
+}
 function checkPaid(){
   const p = new URLSearchParams(window.location.search);
   if(p.get('paid')==='true'){
@@ -673,32 +694,13 @@ function checkPaid(){
 }
 
 function updatePreview(){
-  // Only live-update if already paid
-  if(paidSession && previewGenerated) generateSheet();
+  if(previewGenerated) generateSheet();
 }
 
 function generateSheet(){
   const raw = document.getElementById('f-budget').value.replace(/[^0-9.]/g,'');
   if(!raw || parseFloat(raw)<=0){
     document.getElementById('topsheet-output').innerHTML='<div class="placeholder-msg">Enter a budget amount to generate your top sheet.</div>';
-    return;
-  }
-
-  // Payment gate — must pay before seeing results
-  if(!paidSession){
-    document.getElementById('topsheet-output').innerHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:48px 24px;text-align:center;gap:20px">
-        <div style="font-size:2.5rem">📊</div>
-        <div style="font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-weight:800;font-size:1.3rem">Your top sheet is ready</div>
-        <div style="color:var(--muted);font-size:.9rem;max-width:340px">Pay once to generate and download your professional budget top sheet. No subscription.</div>
-        <button onclick="handlePayment('topsheet')" style="background:var(--red);color:#fff;padding:14px 36px;border-radius:999px;font-weight:700;font-size:1rem;border:none;cursor:pointer;margin-top:8px">Pay $1 — Generate Top Sheet →</button>
-        <button onclick="handlePayment('budget')" style="border:2px solid var(--text);background:none;color:var(--text);padding:12px 30px;border-radius:999px;font-weight:700;font-size:.9rem;border:none;cursor:pointer">Pay $5 — Full Line-Item Budget →</button>
-        <div style="color:var(--muted);font-size:.72rem;margin-top:4px">Secure checkout via Stripe · One-time payment</div>
-      </div>`;
-    document.getElementById('watermark').style.display='none';
-    const bar = document.getElementById('download-bar');
-    bar.style.display = 'none';
-    previewGenerated = true;
     return;
   }
 
@@ -716,12 +718,24 @@ function generateSheet(){
   document.getElementById('topsheet-output').textContent = text;
   previewGenerated = true;
 
-  const bar = document.getElementById('download-bar');
-  bar.style.display = 'flex';
-  document.getElementById('watermark').style.display='none';
-  document.getElementById('pay-btn-topsheet').style.display='none';
-  document.getElementById('pay-btn-budget').style.display='none';
-  document.getElementById('print-btn').style.display='block';
+  // Show watermark overlay if not paid
+  const wm = document.getElementById('watermark-overlay');
+  if(!paidSession){
+    fillWatermarkTiles(); if(wm) wm.style.display='flex';
+    const bar = document.getElementById('download-bar');
+    bar.style.display = 'flex';
+    document.getElementById('pay-btn-topsheet').style.display='block';
+    document.getElementById('pay-btn-budget').style.display='block';
+    document.getElementById('print-btn').style.display='none';
+  } else {
+    if(wm) wm.style.display='none';
+    const bar = document.getElementById('download-bar');
+    bar.style.display = 'flex';
+    document.getElementById('watermark').style.display='none';
+    document.getElementById('pay-btn-topsheet').style.display='none';
+    document.getElementById('pay-btn-budget').style.display='none';
+    document.getElementById('print-btn').style.display='block';
+  }
 }
 
 function handlePayment(tier){
@@ -729,16 +743,9 @@ function handlePayment(tier){
   if(!raw || parseFloat(raw)<=0){alert('Enter a budget amount first.');return;}
   const returnUrl = encodeURIComponent(window.location.href.split('?')[0]+'?paid=true');
   if(tier === 'topsheet'){
-    if(STRIPE_TOPSHEET === 'PENDING_1_DOLLAR_LINK'){
-      alert('$1 top sheet payment coming soon. Use the $5 full budget for now.');return;
-    }
-    window.location.href = STRIPE_TOPSHEET+'?success_url='+returnUrl;
+    window.location.href = STRIPE_TOPSHEET;
   } else {
-    if(STRIPE_BUDGET==='https://buy.stripe.com/7sY3cw5PVanv9Ud2hbasg01'){
-      window.location.href = STRIPE_BUDGET+'?success_url='+returnUrl;
-    } else {
-      alert('Payment not yet configured. Please try again shortly.');
-    }
+    window.location.href = STRIPE_BUDGET;
   }
 }
 
